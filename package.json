@@ -31,7 +31,7 @@
     "uuid": "^11.0.0"
   },
   "devDependencies": {
-    "@asyncapi/cli": "^0.40.3",
+    "@asyncapi/cli": "^3.5.2",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.0",
