@@ -1,0 +1,42 @@
+{
+  "name": "nestjs-cqrs-redis-boilerplate",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:prod": "node dist/main",
+    "build": "nest build",
+    "docs:generate": "asyncapi generate fromTemplate ./asyncapi.yaml @asyncapi/html-template -o ./docs/asyncapi-html",
+    "docs:validate": "asyncapi validate ./asyncapi.yaml",
+    "docs:serve": "asyncapi start studio ./asyncapi.yaml",
+    "docs:build": "npm run docs:validate && npm run docs:generate"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/config": "^4.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/cqrs": "^11.0.0",
+    "@nestjs/mongoose": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/swagger": "^11.2.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
+    "ioredis": "^5.3.0",
+    "js-yaml": "^4.1.0",
+    "mongoose": "^8.0.0",
+    "nestjs-asyncapi": "^0.2.10",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.8.0",
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^11.0.0"
+  },
+  "devDependencies": {
+    "@asyncapi/cli": "^0.40.3",
+    "@nestjs/cli": "^11.0.0",
+    "@nestjs/schematics": "^11.0.0",
+    "@nestjs/testing": "^11.0.0",
+    "@types/node": "^20.0.0",
+    "@types/uuid": "^9.0.0",
+    "typescript": "^5.0.0"
+  }
+}

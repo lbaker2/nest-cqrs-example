@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: nestjs-cqrs-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongodb_data:/data/db
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: nestjs-cqrs-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # app:
+  #   build: .
+  #   container_name: nestjs-cqrs-app
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - mongodb
+  #     - redis
+  #   environment:
+  #     MONGODB_WRITE_URI: mongodb://root:password@mongodb:27017/app_write?authSource=admin
+  #     MONGODB_READ_URI: mongodb://root:password@mongodb:27017/app_read?authSource=admin
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: 6379
+
+volumes:
+  mongodb_data:
+  redis_data:

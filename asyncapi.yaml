@@ -1,0 +1,431 @@
+asyncapi: 2.6.0
+id: urn:com:example:nestjs-cqrs-event-bus
+info:
+  title: NestJS CQRS Event Bus
+  version: 1.0.0
+  description: |
+    AsyncAPI documentation for event-driven architecture using Redis Streams.
+    
+    This API defines the events published by our NestJS CQRS application when domain changes occur.
+    Events are published to Redis Streams and can be consumed by other services.
+    
+    ## Architecture
+    - **Pattern**: CQRS with Event Sourcing
+    - **Transport**: Redis Streams
+    - **Naming Convention**: events:{EventName}
+    - **Ordering**: Events within a stream are processed in order
+    - **Durability**: Events are persisted in Redis and can be replayed
+    
+  contact:
+    name: Development Team
+    url: https://github.com/your-org/nestjs-cqrs
+    email: dev-team@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  production:
+    url: redis://localhost:6379
+    protocol: redis
+    description: Production Redis server for event streaming
+    bindings:
+      redis:
+        bindingVersion: '0.1.0'
+  development:
+    url: redis://localhost:6379
+    protocol: redis
+    description: Development Redis server for event streaming
+    bindings:
+      redis:
+        bindingVersion: '0.1.0'
+
+defaultContentType: application/json
+
+channels:
+  events:UserCreatedEvent:
+    description: |
+      Redis Stream for user creation events.
+      Published when a new user is successfully created in the system.
+      Consumers can use this to update search indexes, send notifications, etc.
+    bindings:
+      redis:
+        method: xadd
+        stream: events:UserCreatedEvent
+        consumerGroup: user-service
+    publish:
+      operationId: publishUserCreated
+      summary: Publish user created event
+      description: Publishes an event when a new user is created
+      message:
+        $ref: '#/components/messages/UserCreatedEvent'
+    
+  events:UserUpdatedEvent:
+    description: |
+      Redis Stream for user update events.
+      Published when user information is modified.
+      Consumers can use this to invalidate caches, update projections, etc.
+    bindings:
+      redis:
+        method: xadd
+        stream: events:UserUpdatedEvent
+        consumerGroup: user-service
+    publish:
+      operationId: publishUserUpdated
+      summary: Publish user updated event
+      description: Publishes an event when user information is updated
+      message:
+        $ref: '#/components/messages/UserUpdatedEvent'
+        
+  events:TeamCreatedEvent:
+    description: |
+      Redis Stream for team creation events.
+      Published when a new team is successfully created.
+      Consumers can use this to update team listings, create related resources, etc.
+    bindings:
+      redis:
+        method: xadd
+        stream: events:TeamCreatedEvent
+        consumerGroup: team-service
+    publish:
+      operationId: publishTeamCreated
+      summary: Publish team created event
+      description: Publishes an event when a new team is created
+      message:
+        $ref: '#/components/messages/TeamCreatedEvent'
+        
+  events:TeamUpdatedEvent:
+    description: |
+      Redis Stream for team update events.
+      Published when team information is modified.
+      Consumers can use this to update caches, sync with external systems, etc.
+    bindings:
+      redis:
+        method: xadd
+        stream: events:TeamUpdatedEvent
+        consumerGroup: team-service
+    publish:
+      operationId: publishTeamUpdated
+      summary: Publish team updated event
+      description: Publishes an event when team information is updated
+      message:
+        $ref: '#/components/messages/TeamUpdatedEvent'
+        
+  events:PlayerAddedEvent:
+    description: |
+      Redis Stream for player addition events.
+      Published when a player joins a team.
+      Consumers can use this to update team rosters, send notifications, etc.
+    bindings:
+      redis:
+        method: xadd
+        stream: events:PlayerAddedEvent
+        consumerGroup: team-service
+    publish:
+      operationId: publishPlayerAdded
+      summary: Publish player added event
+      description: Publishes an event when a player is added to a team
+      message:
+        $ref: '#/components/messages/PlayerAddedEvent'
+        
+  events:PlayerRemovedEvent:
+    description: |
+      Redis Stream for player removal events.
+      Published when a player leaves a team.
+      Consumers can use this to update team rosters, cleanup resources, etc.
+    bindings:
+      redis:
+        method: xadd
+        stream: events:PlayerRemovedEvent
+        consumerGroup: team-service
+    publish:
+      operationId: publishPlayerRemoved
+      summary: Publish player removed event
+      description: Publishes an event when a player is removed from a team
+      message:
+        $ref: '#/components/messages/PlayerRemovedEvent'
+
+components:
+  messages:
+    UserCreatedEvent:
+      messageId: UserCreatedEvent
+      name: UserCreatedEvent
+      title: User Created Event
+      summary: A new user has been created
+      description: |
+        This event is published when a new user successfully registers in the system.
+        It contains all the essential user information needed by downstream services.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/UserCreatedEventPayload'
+      examples:
+        - name: typical-user-created
+          summary: Typical user creation event
+          payload:
+            aggregateId: "507f1f77bcf86cd799439011"
+            userId: "507f1f77bcf86cd799439011"
+            email: "john.doe@example.com"
+            firstName: "John"
+            lastName: "Doe"
+            occurredOn: "2024-01-15T10:30:00.000Z"
+            version: 1
+            correlationId: "550e8400-e29b-41d4-a716-446655440000"
+        
+    UserUpdatedEvent:
+      messageId: UserUpdatedEvent
+      name: UserUpdatedEvent
+      title: User Updated Event
+      summary: A user has been updated
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/UserUpdatedEventPayload'
+        
+    TeamCreatedEvent:
+      messageId: TeamCreatedEvent
+      name: TeamCreatedEvent
+      title: Team Created Event
+      summary: A new team has been created
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TeamCreatedEventPayload'
+        
+    TeamUpdatedEvent:
+      messageId: TeamUpdatedEvent
+      name: TeamUpdatedEvent
+      title: Team Updated Event
+      summary: A team has been updated
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TeamUpdatedEventPayload'
+        
+    PlayerAddedEvent:
+      messageId: PlayerAddedEvent
+      name: PlayerAddedEvent
+      title: Player Added Event
+      summary: A player has been added to a team
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/PlayerAddedEventPayload'
+        
+    PlayerRemovedEvent:
+      messageId: PlayerRemovedEvent
+      name: PlayerRemovedEvent
+      title: Player Removed Event
+      summary: A player has been removed from a team
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/PlayerRemovedEventPayload'
+
+  schemas:
+    BaseEvent:
+      type: object
+      required:
+        - aggregateId
+        - occurredOn
+        - version
+      properties:
+        aggregateId:
+          type: string
+          description: The ID of the aggregate that this event relates to
+          example: "507f1f77bcf86cd799439011"
+        occurredOn:
+          type: string
+          format: date-time
+          description: Timestamp when the event occurred
+          example: "2024-01-01T00:00:00.000Z"
+        version:
+          type: number
+          description: Event version for schema evolution
+          example: 1
+        correlationId:
+          type: string
+          description: ID to correlate related events
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        causationId:
+          type: string
+          description: ID of the event that caused this event
+          example: "550e8400-e29b-41d4-a716-446655440001"
+        userId:
+          type: string
+          description: ID of the user who triggered the event
+          example: "507f1f77bcf86cd799439011"
+          
+    UserCreatedEventPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          required:
+            - userId
+            - email
+            - firstName
+            - lastName
+          properties:
+            userId:
+              type: string
+              description: Unique identifier of the created user
+              example: "507f1f77bcf86cd799439011"
+            email:
+              type: string
+              format: email
+              description: Email address of the created user
+              example: "john.doe@example.com"
+            firstName:
+              type: string
+              description: First name of the created user
+              example: "John"
+            lastName:
+              type: string
+              description: Last name of the created user
+              example: "Doe"
+              
+    UserUpdatedEventPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          required:
+            - userId
+            - updates
+          properties:
+            userId:
+              type: string
+              description: Unique identifier of the updated user
+              example: "507f1f77bcf86cd799439011"
+            updates:
+              type: object
+              description: Fields that were updated
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Updated email address
+                  example: "john.new@example.com"
+                firstName:
+                  type: string
+                  description: Updated first name
+                  example: "Jonathan"
+                lastName:
+                  type: string
+                  description: Updated last name
+                  example: "Smith"
+                  
+    TeamCreatedEventPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          required:
+            - teamId
+            - name
+          properties:
+            teamId:
+              type: string
+              description: Unique identifier of the created team
+              example: "507f1f77bcf86cd799439012"
+            name:
+              type: string
+              description: Name of the created team
+              example: "Alpha Team"
+            description:
+              type: string
+              description: Description of the team
+              example: "A competitive team focused on winning tournaments"
+            captainId:
+              type: string
+              description: User ID of the team captain
+              example: "507f1f77bcf86cd799439011"
+            maxPlayers:
+              type: number
+              description: Maximum number of players allowed in the team
+              example: 10
+              
+    TeamUpdatedEventPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          required:
+            - teamId
+            - updates
+          properties:
+            teamId:
+              type: string
+              description: Unique identifier of the updated team
+              example: "507f1f77bcf86cd799439012"
+            updates:
+              type: object
+              description: Fields that were updated
+              properties:
+                name:
+                  type: string
+                  description: Updated team name
+                  example: "Beta Team"
+                description:
+                  type: string
+                  description: Updated team description
+                  example: "An elite competitive team"
+                captainId:
+                  type: string
+                  description: Updated captain user ID
+                  example: "507f1f77bcf86cd799439013"
+                maxPlayers:
+                  type: number
+                  description: Updated maximum players
+                  example: 15
+                isActive:
+                  type: boolean
+                  description: Updated active status
+                  example: true
+                  
+    PlayerAddedEventPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          required:
+            - teamId
+            - userId
+            - userEmail
+            - userFirstName
+            - userLastName
+          properties:
+            teamId:
+              type: string
+              description: ID of the team the player was added to
+              example: "507f1f77bcf86cd799439012"
+            userId:
+              type: string
+              description: ID of the user added as a player
+              example: "507f1f77bcf86cd799439011"
+            userEmail:
+              type: string
+              format: email
+              description: Email of the added player
+              example: "john.doe@example.com"
+            userFirstName:
+              type: string
+              description: First name of the added player
+              example: "John"
+            userLastName:
+              type: string
+              description: Last name of the added player
+              example: "Doe"
+              
+    PlayerRemovedEventPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          required:
+            - teamId
+            - userId
+          properties:
+            teamId:
+              type: string
+              description: ID of the team the player was removed from
+              example: "507f1f77bcf86cd799439012"
+            userId:
+              type: string
+              description: ID of the user removed from the team
+              example: "507f1f77bcf86cd799439011"
+
+tags:
+  - name: user
+    description: User-related events
+  - name: team
+    description: Team-related events
